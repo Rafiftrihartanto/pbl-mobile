@@ -45,5 +45,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('departments/{id}', [DepartmentController::class, 'destroy']);
 });
 
-// Position routes
-Route::apiResource('positions', PositionController::class)->middleware('auth:sanctum');
+// Positions routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('positions', [PositionController::class, 'index']);
+    Route::get('positions/{id}', [PositionController::class, 'show']);
+});
+
+// Position management (admin only)
+Route::middleware(['auth:sanctum'])->group(function () {
+    // TODO: Add 'admin' middleware
+    Route::post('positions', [PositionController::class, 'store']);
+    Route::patch('positions/{id}', [PositionController::class, 'update']);
+    Route::delete('positions/{id}', [PositionController::class, 'destroy']);
+});
