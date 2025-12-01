@@ -4,9 +4,14 @@ import 'package:client/services/auth_service.dart';
 import 'package:client/services/user_service.dart';
 import 'package:client/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final storage = FlutterSecureStorage();
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final int? userId;
+
+  const ProfileScreen({super.key, this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +20,7 @@ class ProfileScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: FutureBuilder(
-          future: UserService.instance.getLoggedInUser(),
+          future: UserService.instance.getUser(userId),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
@@ -96,7 +101,7 @@ class _ProfileField extends StatelessWidget {
   final String title;
   final String value;
 
-  const _ProfileField({super.key, required this.title, required this.value});
+  const _ProfileField({required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
