@@ -4,8 +4,10 @@ import 'package:client/screens/login_screen.dart';
 import 'package:client/screens/forgot_password_screen.dart';
 import 'package:client/screens/profile_screen.dart';
 import 'package:client/screens/change_password_screen.dart';
+import 'package:client/screens/register_screen.dart';
 import 'package:client/services/auth_service.dart';
 import 'package:client/widgets/navbar_admin.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:client/models/employee_model.dart';
 import 'package:client/screens/groupTwo/admin_dashboard_screen.dart';
 import 'package:client/screens/groupTwo/department_crud_screen.dart';
@@ -16,11 +18,12 @@ import 'package:client/screens/groupTwo/employee_list_screen.dart';
 import 'package:client/screens/groupTwo/position_crud_screen.dart';
 import 'package:client/screens/groupTwo/role_selection_screen.dart';
 import 'package:client/widgets/navbar.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'screens/admin_screen.dart';
 import 'widgets/navbar_user.dart';
+
+final storage = FlutterSecureStorage();
 
 final GoRouter router = GoRouter(
   initialLocation: "/login",
@@ -29,26 +32,77 @@ final GoRouter router = GoRouter(
   },
 
   routes: [
+    // ========================================
+    // ADMIN SHELL ROUTES (dari branch incoming)
+    // ========================================
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => Scaffold(
         body: navigationShell,
         bottomNavigationBar: NavbarAdmin(navigationShell: navigationShell),
       ),
       branches: [
+        // Branch 1: Admin Dashboard
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: "/admin",
-              builder: (context, state) => const AdminScreen(),
+              builder: (context, state) => const AdminDashboardScreen(),
             ),
+            // Alternative: bisa menggunakan AdminScreen() dari main
+            // GoRoute(
+            //   path: "/admin",
+            //   builder: (context, state) => const AdminScreen(),
+            // ),
+          ],
+        ),
+        // Branch 2: Employee Management
+        StatefulShellBranch(
+          routes: [
             GoRoute(
               path: "/admin/employee",
-              builder: (context, state) => const EmployeeScreen(),
+              builder: (context, state) => const EmployeeListScreen(isKaryawanMode: false),
+            ),
+            // Alternative: bisa menggunakan EmployeeScreen() dari main
+            // GoRoute(
+            //   path: "/admin/employee",
+            //   builder: (context, state) => const EmployeeScreen(),
+            // ),
+            GoRoute(
+              path: "/admin/profile-detail",
+              builder: (context, state) {
+                return ProfileScreen(userId: state.extra as int);
+              },
+            ),
+            GoRoute(
+              path: "/admin/register",
+              builder: (context, state) => const RegisterScreen(),
+            ),
+          ],
+        ),
+        // Branch 3: Admin Profile & Settings
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: "/admin/profile",
+              builder: (context, state) => const ProfileScreen(),
+            ),
+            // Tambahkan route untuk Position dan Department CRUD di shell admin
+            GoRoute(
+              path: "/admin/positions",
+              builder: (context, state) => const PositionCrudScreen(),
+            ),
+            GoRoute(
+              path: "/admin/departments",
+              builder: (context, state) => const DepartmentCrudScreen(),
             ),
           ],
         ),
       ],
     ),
+
+    // ========================================
+    // USER SHELL ROUTES
+    // ========================================
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => Scaffold(
         body: navigationShell,
@@ -74,6 +128,11 @@ final GoRouter router = GoRouter(
       ],
     ),
 
+    // ========================================
+    // NON-SHELL ROUTES (Full Screen)
+    // ========================================
+
+    // Authentication routes
     GoRoute(path: "/login", builder: (context, state) => const LoginScreen()),
     GoRoute(
       path: "/forgot-password",
@@ -82,7 +141,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: "/change-password",
       builder: (context, state) => const ChangePasswordScreen(),
-
+    ),
 
     // ========================================
     // GROUP TWO ROUTES
@@ -119,7 +178,7 @@ final GoRouter router = GoRouter(
         final isKaryawanMode = extra['isKaryawanMode'] as bool;
 
         return EmployeeDetailScreen(
-          initialEmployee: employee, // UBAH NAMA PARAMETER
+          initialEmployee: employee,
           isKaryawanMode: isKaryawanMode,
         );
       },
@@ -141,22 +200,15 @@ final GoRouter router = GoRouter(
       },
     ),
 
-    // ========== ADMIN MODE ==========
+    // ========== ADMIN MODE (NON-SHELL) ==========
 
-    // Admin dashboard
+    // Alternative admin dashboard (non-shell)
     GoRoute(
       path: "/admin-dashboard",
       builder: (context, state) => const AdminDashboardScreen(),
     ),
 
-    // Admin - Employee list for management
-    GoRoute(
-      path: "/admin/employee-list",
-      builder: (context, state) =>
-          const EmployeeListScreen(isKaryawanMode: false),
-    ),
-
-    // Admin - Edit management
+    // Admin - Edit management (non-shell)
     GoRoute(
       path: "/employee/edit-management/:id",
       builder: (context, state) {
@@ -172,16 +224,22 @@ final GoRouter router = GoRouter(
       },
     ),
 
-    // Admin - Position CRUD
+    // Alternative CRUD routes (non-shell) untuk backward compatibility
     GoRoute(
-      path: "/admin/positions",
+      path: "/admin/positions-crud",
       builder: (context, state) => const PositionCrudScreen(),
     ),
 
-    // Admin - Department CRUD
     GoRoute(
-      path: "/admin/departments",
+      path: "/admin/departments-crud",
       builder: (context, state) => const DepartmentCrudScreen(),
+    ),
+
+    // Alternative employee list untuk admin (non-shell)
+    GoRoute(
+      path: "/admin/employee-list",
+      builder: (context, state) =>
+          const EmployeeListScreen(isKaryawanMode: false),
     ),
   ],
 );
