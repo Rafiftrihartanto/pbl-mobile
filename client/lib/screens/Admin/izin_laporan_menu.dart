@@ -24,7 +24,10 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
       Uri.parse(
         'https://collene-eternal-luba.ngrok-free.dev/api/izin-dashboard',
       ),
-      headers: {'Accept': 'application/json'},
+      headers: {
+        'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
     );
 
     if (response.statusCode == 200) {
