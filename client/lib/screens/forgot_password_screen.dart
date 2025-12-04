@@ -1,3 +1,4 @@
+import 'package:client/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
@@ -5,9 +6,8 @@ class ForgotPasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
+      appBar: CustomAppbar(title: ""),
       backgroundColor: const Color(0xFF22A9D6),
       body: SafeArea(
         child: Stack(
@@ -153,19 +153,6 @@ class ForgotPasswordScreen extends StatelessWidget {
                 ],
               ),
             ),
-
-            // ================ FIXED-BOTTOM NAVIGATOR ================
-            // Center(
-            //   child: Container(
-            //     width: size.width * 0.3,
-            //     height: 4,
-            //     margin: const EdgeInsets.only(bottom: 12),
-            //     decoration: BoxDecoration(
-            //       color: Colors.black12,
-            //       borderRadius: BorderRadius.circular(20),
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ),
