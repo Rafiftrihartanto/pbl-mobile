@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -30,7 +31,6 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Form fields
             const _ProfileField(title: "Nama Awal", value: "John"),
             const _ProfileField(title: "Nama Akhir", value: "Doe"),
             const _ProfileField(title: "Email", value: "JohnDoe@gmail.com"),
@@ -47,12 +47,14 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Tombol Informasi Gaji
+            // Tombol Informasi Gaji → ke Payroll
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.push("/payroll"); // navigasi ke PayrollScreen
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   shape: RoundedRectangleBorder(
@@ -95,7 +97,7 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// Widget Custom untuk Field
+/// Widget custom untuk field profile
 class _ProfileField extends StatelessWidget {
   final String title;
   final String value;

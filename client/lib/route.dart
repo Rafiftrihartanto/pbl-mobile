@@ -9,6 +9,7 @@ import 'screens/forgot_password_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/payroll_screen.dart';
+import 'screens/payroll_detail_screen.dart';  
 
 import 'widgets/navbar_admin.dart';
 import 'widgets/navbar_user.dart';
@@ -86,11 +87,15 @@ final GoRouter router = GoRouter(
     ),
 
     // ==============================
-    // PAYROLL ROUTE
+    // PAYROLL ROUTES
     // ==============================
     GoRoute(
       path: "/payroll",
       builder: (context, state) => const PayrollScreen(),
+    ),
+    GoRoute(
+      path: "/payroll/detail",
+      builder: (context, state) => const PayrollDetailScreen(), 
     ),
   ],
 );
