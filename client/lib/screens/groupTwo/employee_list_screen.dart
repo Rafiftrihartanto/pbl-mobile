@@ -186,7 +186,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
       itemCount: _filteredEmployees.length,
       itemBuilder: (context, i) {
         return _buildEmployeeCard(_filteredEmployees[i]);
