@@ -1,6 +1,6 @@
 import 'package:client/models/employee_model.dart';
 import 'package:client/services/auth_service.dart';
-import 'package:client/services/employee_service.dart'; // ✅ GANTI DARI UserService
+import 'package:client/services/employee_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +17,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  EmployeeModel? _employee; // ✅ GANTI dari UserModel ke EmployeeModel
+  EmployeeModel? _employee;
   bool _isLoading = true;
   bool _isAdminMode = false;
   int? _currentUserId;
@@ -43,7 +43,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // ✅ Use widget.userId if provided (admin mode), else use current user ID
       final targetUserId = widget.userId ?? _currentUserId;
 
       if (targetUserId == null) {
@@ -51,10 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       }
 
-      // ✅ LANGSUNG DARI EMPLOYEE SERVICE
-      final response = await EmployeeService.instance.getEmployeeById(
-        targetUserId,
-      );
+      final response = await EmployeeService.instance.getEmployeeById(targetUserId);
 
       if (response.success && response.data != null) {
         setState(() {
@@ -64,19 +60,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } else {
         setState(() => _isLoading = false);
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(response.message)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response.message)),
+          );
         }
       }
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memuat data: $e')),
+        );
       }
     }
+  }
+
+  // ✅ UPDATED LOGOUT HANDLER (FROM INCOMING)
+  Future<void> handleLogout(BuildContext context) async {
+    final response = await AuthService.instance.logout();
+
+    if (!context.mounted) {
+      return;
+    }
+
+    if (!response.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.message)),
+      );
+      return;
+    }
+
+    context.go("/login");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(response.message)),
+    );
   }
 
   @override
@@ -133,18 +150,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: CircleAvatar(
                                   radius: 50,
                                   backgroundColor: const Color(0xFF1B7FA8),
-                                  // ✅ SAMA SEPERTI EMPLOYEE_SCREEN
-                                  backgroundImage:
-                                      _employee?.profilePhotoUrl != null
-                                      ? NetworkImage(
-                                          _employee!.profilePhotoUrl!,
-                                        )
+                                  backgroundImage: _employee?.profilePhotoUrl != null
+                                      ? NetworkImage(_employee!.profilePhotoUrl!)
                                       : null,
                                   child: _employee?.profilePhotoUrl == null
                                       ? Text(
                                           _employee?.fullName.isNotEmpty == true
-                                              ? _employee!.fullName[0]
-                                                    .toUpperCase()
+                                              ? _employee!.fullName[0].toUpperCase()
                                               : '?',
                                           style: const TextStyle(
                                             color: Colors.white,
@@ -159,38 +171,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // ✅ EDIT BUTTON (EMPLOYEE MODE ONLY)
                               if (!_isAdminMode && _employee != null)
                                 Positioned(
-                                      left:
-                                          MediaQuery.of(context).size.width -
-                                              100,
-                                      top: 0,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                            255,
-                                            84,
-                                            172,
-                                            255,
-                                          ),
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.2),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ],
+                                  left: MediaQuery.of(context).size.width - 100,
+                                  top: 0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(255, 84, 172, 255),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
                                         ),
-                                        child: IconButton(
-                                          icon: const Icon(
-                                            Icons.edit,
-                                            color: Color.fromARGB(
-                                              255,
-                                              255,
-                                              144,
-                                              17,
-                                            ),
-                                            size: 24,
-                                          ),
+                                      ],
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        color: Color.fromARGB(255, 255, 144, 17),
+                                        size: 24,
+                                      ),
                                       onPressed: () async {
                                         final result = await context.push(
                                           '/employee/edit-personal/${_employee!.id}',
@@ -210,39 +210,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 25),
 
                           // ✅ INFO CARDS
-                          _buildInfoCard(
-                            "Nama Depan",
-                            _employee?.firstName ?? "-",
-                          ),
-                          _buildInfoCard(
-                            "Nama Belakang",
-                            _employee?.lastName ?? "-",
-                          ),
-                          _buildInfoCard(
-                            "Email",
-                            _employee?.user?.email ?? "-",
-                          ),
+                          _buildInfoCard("Nama Depan", _employee?.firstName ?? "-"),
+                          _buildInfoCard("Nama Belakang", _employee?.lastName ?? "-"),
+                          _buildInfoCard("Email", _employee?.user?.email ?? "-"),
                           _buildInfoCard(
                             "Jenis Kelamin",
                             _employee?.gender == 'L'
                                 ? "Laki-laki"
                                 : _employee?.gender == 'P'
-                                ? "Perempuan"
-                                : "-",
+                                    ? "Perempuan"
+                                    : "-",
                           ),
                           _buildInfoCard("Alamat", _employee?.address ?? "-"),
-                          _buildInfoCard(
-                            "Status",
-                            _employee?.employmentStatus ?? "-",
-                          ),
-                          _buildInfoCard(
-                            "Posisi",
-                            _employee?.position?.name ?? "-",
-                          ),
-                          _buildInfoCard(
-                            "Departemen",
-                            _employee?.department?.name ?? "-",
-                          ),
+                          _buildInfoCard("Status", _employee?.employmentStatus ?? "-"),
+                          _buildInfoCard("Posisi", _employee?.position?.name ?? "-"),
+                          _buildInfoCard("Departemen", _employee?.department?.name ?? "-"),
 
                           const SizedBox(height: 25),
 
@@ -252,9 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF4CB050),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -285,9 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFF1A53B),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -304,10 +282,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   }
                                 },
-                                icon: const Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                ),
+                                icon: const Icon(Icons.edit, color: Colors.white),
                                 label: const Text(
                                   "Edit Data Karyawan",
                                   style: TextStyle(
@@ -320,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
 
-                          // ✅ LOGOUT BUTTON (EMPLOYEE MODE ONLY)
+                          // ✅ LOGOUT BUTTON (EMPLOYEE MODE ONLY) - UPDATED
                           if (!_isAdminMode) ...[
                             const SizedBox(height: 12),
                             SizedBox(
@@ -328,20 +303,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
                                 onPressed: () async {
-                                  await AuthService.instance.logout(context);
+                                  await handleLogout(context); // ✅ USE NEW HANDLER
                                 },
-                                icon: const Icon(
-                                  Icons.logout,
-                                  color: Colors.white,
-                                ),
+                                icon: const Icon(Icons.logout, color: Colors.white),
                                 label: const Text(
                                   "Logout",
                                   style: TextStyle(

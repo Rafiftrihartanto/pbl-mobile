@@ -4,7 +4,6 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AttendanceController;
 use App\Http\Controllers\API\ScheduleController;
-use App\Http\Controllers\API\DepartementController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\EmployeeProfileController;
 use App\Http\Controllers\Api\EmployeeManagementController;
@@ -31,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get("/users", [UserController::class, "show_users"]);
     Route::patch("/user/{id}", [UserController::class, "update_user"]);
     Route::post("/register", [AuthController::class, "register"]);
+    Route::post("/logout", [AuthController::class, "logout"]);
 
     // ========== ATTENDANCE ROUTES ==========
     Route::prefix('absen')->group(function () {
@@ -56,7 +56,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // ========== DEPARTMENT ROUTES ==========
     Route::get('departments', [DepartmentController::class, 'index']);
     Route::get('departments/{id}', [DepartmentController::class, 'show']);
-    Route::get('departements', [DepartmentController::class, 'index']); // backward compatibility
     Route::post('departments', [DepartmentController::class, 'store']);
     Route::patch('departments/{id}', [DepartmentController::class, 'update']);
     Route::delete('departments/{id}', [DepartmentController::class, 'destroy']);
